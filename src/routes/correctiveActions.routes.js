@@ -125,7 +125,7 @@ export default async function correctiveActionRoutes(fastify, options) {
       return reply.status(400).send({ error: 'Validation Error', message: 'Status is required' });
     }
 
-    let sql = 'UPDATE corrective_actions SET status = $1, updated_at = CURRENT_TIMESTAMP';
+    let sql = 'UPDATE corrective_actions SET status = $1';
     const params = [status];
 
     if (resolution_notes) {
@@ -134,12 +134,12 @@ export default async function correctiveActionRoutes(fastify, options) {
     }
 
     if (status === 'Completed') {
-      sql += ', completed_at = CURRENT_TIMESTAMP';
+      sql += ', completion_date = CURRENT_DATE';
     }
 
     if (status === 'Verified') {
       params.push(parseSafeInt(request.user?.id));
-      sql += `, verified_by = $${params.length}, verified_at = CURRENT_TIMESTAMP`;
+      sql += `, verified_by = $${params.length}`;
       if (verification_notes) {
         params.push(verification_notes);
         sql += `, verification_notes = $${params.length}`;

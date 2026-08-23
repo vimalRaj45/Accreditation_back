@@ -458,6 +458,14 @@ export async function initDb() {
           await client.query(schemaSql);
           console.log('Database schema verified/created successfully.');
         }
+
+        // Run safe non-breaking column additions if missing
+        await client.query(`
+          ALTER TABLE IF EXISTS corrective_actions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+          ALTER TABLE IF EXISTS corrective_actions ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
+          ALTER TABLE IF EXISTS corrective_actions ADD COLUMN IF NOT EXISTS verification_notes TEXT;
+          ALTER TABLE IF EXISTS corrective_actions ADD COLUMN IF NOT EXISTS completion_date DATE;
+        `);
       } catch (schemaErr) {
         console.warn('Schema auto-migration warning:', schemaErr.message);
       } finally {
